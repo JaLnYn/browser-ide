@@ -28,6 +28,8 @@
     "react-dom": "18",
     "react-resizable-panels": "^2.1.6",
     "react-use-websocket": "^4.10.0",
+    "sass": "^1.80.6",
+    "scss": "^0.2.4",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "vscode-languageserver-protocol": "^3.17.5",

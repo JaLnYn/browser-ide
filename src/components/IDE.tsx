@@ -9,6 +9,7 @@ import { useIDE } from "../hooks/useIDE";
 import { useLsp } from "../hooks/useLsp";
 import { useEditorState } from "@/hooks/useEditorState";
 import { Tabs } from "@/components/Tabs";
+import "@/styles/global.scss";
 
 export default function IDE() {
   const {
