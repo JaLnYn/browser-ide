@@ -28,7 +28,7 @@ interface FileTreeNodeProps {
 
 export function FileTree({ children, className }: FileTreeProps) {
   return (
-    <div className={cn("select-none text-sm", className)}>
+    <div className={cn("select-none text-sm ft-root spread column astart", className)}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child, {
@@ -58,7 +58,7 @@ export function FileTreeNode({
   const indentation = depth * 12; // 12px per level
 
   return (
-    <div className="relative">
+    <div className="relative file-tree">
       <div
         className={cn(
           "flex items-center py-1 px-2 hover:bg-accent/50 cursor-pointer relative group",
@@ -75,7 +75,7 @@ export function FileTreeNode({
         {/* Hover effect line */}
         <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
-        <div className="flex items-center flex-1 min-w-0">
+        <div className="spread small-gap jstart">
           {isFolder && (
             <span
               className="w-4 h-4 flex items-center justify-center cursor-pointer hover:text-primary"

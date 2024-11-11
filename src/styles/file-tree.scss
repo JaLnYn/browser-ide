@@ -1,0 +1,47 @@
+/** Styles the file-tree */
+
+/** The root node that contains all the rows in the file-tree */
+main.ide .ft-root {
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border-radius: 1rem;
+
+    & > .file-tree {
+        scale: 0.95;
+        cursor: pointer;
+        transition: 200ms;
+
+        &:hover {
+            padding: 0rem 0.5rem;
+            margin-left: -0.25rem;
+            border-radius: 5px;
+            background: #eee;
+            box-shadow: 0 10px 15px -12px black;
+        }
+    }
+}
+
+main.ide .explorer-title {
+    padding: 0.25rem 0.75rem;
+    box-sizing: border-box;
+    background: #eee;
+    box-shadow: 0 5px 5px #0002;
+    height: 2.25rem;
+
+    span.title {
+        font-size: 1rem;
+        font-weight: bold;
+
+    }
+
+    button {
+        background-color: transparent;
+        padding: 0;
+        scale: 0.85;
+        box-shadow: none;
+
+        &:hover {
+            scale: 1;
+        }
+    }
+}

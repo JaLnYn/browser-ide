@@ -52,50 +52,45 @@ export function FileExplorer({
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      {" "}
+    <div className="spread column max-width small-gap">
       {/* Added overflow-hidden */}
-      <div className="flex-none p-2 border-b bg-background">
-        <div className="flex justify-between items-center">
-          <h2 className="text-sm font-semibold">Explorer</h2>
-          <div className="flex items-center space-x-2">
-            {!connected && (
-              <span className="text-xs text-red-500 animate-pulse">●</span>
-            )}
-            <button
-              onClick={onRefresh}
-              disabled={loading || !connected}
-              className="p-1 hover:bg-accent rounded-sm disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-              />
-            </button>
-          </div>
+      <div className="spread between explorer-title">
+        <span className="title"> Explorer </span>
+        <div className="spread">
+          {!connected && (
+            <span className="text-xs text-red-500 animate-pulse">● Connecting...</span>
+          )}
+          <button
+            onClick={onRefresh}
+            disabled={loading || !connected}
+            className="p-1 hover:bg-accent rounded-sm disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+          </button>
         </div>
       </div>
       <ScrollArea className="flex-1 border-none">
-        <div className="p-2">
-          {loading ? (
-            <div className="space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="h-4 bg-muted rounded" />
-                </div>
-              ))}
+      {loading ? (
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-4 bg-muted rounded" />
             </div>
-          ) : (
-            <FileTree>
-              {fileTree.length > 0 ? (
-                renderFileTree(fileTree)
-              ) : (
-                <div className="p-2 text-muted-foreground text-sm">
-                  No files found
-                </div>
-              )}
-            </FileTree>
-          )}
+          ))}
         </div>
+      ) : (
+        <FileTree>
+          {fileTree.length > 0 ? (
+            renderFileTree(fileTree)
+          ) : (
+            <div className="p-2 text-muted-foreground text-sm">
+              No files found
+            </div>
+          )}
+        </FileTree>
+      )}
       </ScrollArea>
     </div>
   );
