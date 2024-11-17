@@ -79,3 +79,18 @@ export interface DocumentMetadata {
   };
   line_ending: "CRLF" | "LF" | "Mixed";
 }
+
+export interface TerminalSize {
+  cols: number;
+  rows: number;
+}
+
+export interface TerminalOptions {
+  id?: string;
+  size: TerminalSize;
+}
+
+export interface Terminal {
+  id: string;
+  size: TerminalSize;
+}

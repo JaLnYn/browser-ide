@@ -218,6 +218,7 @@ export function useFileSystem({ onFileContent }: FileSystemProps) {
 
   // Initial directory load
   useEffect(() => {
+    console.log("Connected:", connected);
     if (connected) {
       console.log("Requesting directory content");
       rawSendMessage(
