@@ -1,4 +1,3 @@
-// src/components/IDE.tsx
 "use client";
 
 import React from "react";
@@ -6,7 +5,9 @@ import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Toaster } from "@/components/ui/toaster";
 import { FileExplorer } from "./FileExplorer";
 import { Editor } from "./Editor";
-import { TerminalPanel } from "./Terminal";
+// import { TerminalPanel } from "./Terminal";
+import { TerminalWrapper } from "./TerminalWrapper"; // Update import
+
 import { useEditorState } from "@/hooks/useEditorState";
 import { useLsp } from "@/hooks/useLsp";
 import { Tabs } from "@/components/Tabs";
@@ -25,18 +26,22 @@ export default function IDE() {
     closeTab,
     toggleFolder,
     updateTabContent,
+    updateTabDirtyState,
     saveTab,
     refresh,
   } = useEditorState();
 
   const { diagnostics } = useLsp();
 
-  const [showTerminal, setShowTerminal] = React.useState(true);
-
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col">
+    <div className="fixed inset-0 flex flex-col bg-background text-foreground">
       <ResizablePanelGroup direction="horizontal" className="flex-1">
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={40}>
+        <ResizablePanel
+          defaultSize={20}
+          minSize={15}
+          maxSize={40}
+          className="overflow-hidden"
+        >
           <FileExplorer
             loading={loading}
             connected={connected}
@@ -48,41 +53,42 @@ export default function IDE() {
             selectedFile={activeTab?.path ?? null}
           />
         </ResizablePanel>
-
-        <ResizablePanel defaultSize={80}>
-          <ResizablePanelGroup direction="vertical">
-            <ResizablePanel defaultSize={70} minSize={30}>
-              <div className="h-full flex flex-col">
+        <ResizablePanel defaultSize={60} className="overflow-hidden">
+          <ResizablePanelGroup direction="vertical" className="h-full">
+            <ResizablePanel defaultSize={70} className="overflow-hidden">
+              <div className="flex h-full flex-col overflow-hidden">
                 <Tabs
                   tabs={tabs}
                   activeTabId={activeTabId ?? ""}
                   onTabSelect={(tabId) => setActiveTabId(tabId)}
                   onTabClose={closeTab}
                 />
-                {activeTab && (
-                  <Editor
-                    content={activeTab.content}
-                    path={activeTab.path}
-                    language={activeTab.language ?? "plaintext"}
-                    onContentChange={(newContent: string) => {
-                      if (activeTabId) {
-                        updateTabContent(activeTabId, newContent);
+                <Editor
+                  content={activeTab?.content ?? ""}
+                  path={activeTab?.path ?? null}
+                  language={activeTab?.language ?? "plaintext"}
+                  onContentChange={(newContent: string) => {
+                    if (activeTabId) {
+                      updateTabContent(activeTabId, newContent);
+                    }
+                  }}
+                  isDirty={activeTab?.isDirty ?? false}
+                  diagnostics={
+                    activeTab ? diagnostics.get(activeTab.path) : undefined
+                  }
+                  onSave={() => {
+                    if (activeTabId) {
+                      const tab = tabs.find((t) => t.id === activeTabId);
+                      if (tab) {
+                        saveTab(tab.id);
                       }
-                    }}
-                    isDirty={activeTab.isDirty}
-                    diagnostics={diagnostics.get(activeTab.path)}
-                    onSave={() => {
-                      if (activeTabId) {
-                        saveTab(activeTabId);
-                      }
-                    }}
-                  />
-                )}
+                    }
+                  }}
+                />
               </div>
             </ResizablePanel>
-
-            <ResizablePanel defaultSize={30} minSize={10}>
-              <TerminalPanel />
+            <ResizablePanel defaultSize={30} className="overflow-hidden">
+              <TerminalWrapper />
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
