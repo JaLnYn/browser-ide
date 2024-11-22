@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Toaster } from "@/components/ui/toaster";
 import { FileExplorer } from "./FileExplorer";
@@ -11,6 +11,14 @@ import { TerminalWrapper } from "./TerminalWrapper"; // Update import
 import { useEditorState } from "@/hooks/useEditorState";
 import { useLsp } from "@/hooks/useLsp";
 import { Tabs } from "@/components/Tabs";
+import { useSearch } from "@/hooks/useSearch";
+import {
+  Tabs as TabsComponent,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { SearchPanel } from "./SearchPanel";
 
 export default function IDE() {
   const {
@@ -31,6 +39,17 @@ export default function IDE() {
     refresh,
   } = useEditorState();
 
+  const { results, isSearching, search, cancelSearch } = useSearch();
+
+  const handleSearchResult = useCallback(
+    (path: string, line: number) => {
+      // Open the file and scroll to line
+      openFile(path);
+      // You might need to add line scrolling functionality to your Editor component
+    },
+    [openFile]
+  );
+
   const { diagnostics } = useLsp();
 
   return (
@@ -42,16 +61,33 @@ export default function IDE() {
           maxSize={40}
           className="overflow-hidden"
         >
-          <FileExplorer
-            loading={loading}
-            connected={connected}
-            fileTree={fileTree}
-            onRefresh={refresh}
-            onFileSelect={openFile}
-            onFolderToggle={toggleFolder}
-            expandedFolders={expandedFolders}
-            selectedFile={activeTab?.path ?? null}
-          />
+          <TabsComponent defaultValue="files">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="files">Files</TabsTrigger>
+              <TabsTrigger value="search">Search</TabsTrigger>
+            </TabsList>
+            <TabsContent value="files" className="h-[calc(100vh-2.5rem)]">
+              <FileExplorer
+                loading={loading}
+                connected={connected}
+                fileTree={fileTree}
+                onRefresh={refresh}
+                onFileSelect={openFile}
+                onFolderToggle={toggleFolder}
+                expandedFolders={expandedFolders}
+                selectedFile={activeTab?.path ?? null}
+              />
+            </TabsContent>
+            <TabsContent value="search" className="h-[calc(100vh-2.5rem)]">
+              <SearchPanel
+                results={results}
+                isSearching={isSearching}
+                onSearch={search}
+                onCancel={cancelSearch}
+                onResultClick={handleSearchResult}
+              />
+            </TabsContent>
+          </TabsComponent>
         </ResizablePanel>
         <ResizablePanel defaultSize={60} className="overflow-hidden">
           <ResizablePanelGroup direction="vertical" className="h-full">
