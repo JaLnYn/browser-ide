@@ -20,7 +20,7 @@ export function useSearch() {
   const { toast } = useToast();
 
   const search = useCallback(
-    async (query: string, searchFilenameOnly: boolean = false) => {
+    async (query: string, searchContent: boolean = false) => {
       try {
         console.log("sending search", query);
         // // Only search if query is at least 2 chars different from previous
@@ -37,7 +37,7 @@ export function useSearch() {
           type: "Search",
           content: {
             query,
-            search_filename_only: searchFilenameOnly,
+            search_content: searchContent,
           } as any,
         };
 

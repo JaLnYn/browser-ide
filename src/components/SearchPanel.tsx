@@ -1,5 +1,5 @@
 // src/components/SearchPanel.tsx
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Search, XCircle, Loader2, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,16 +24,41 @@ export function SearchPanel({
 }: SearchPanelProps) {
   const [query, setQuery] = useState("");
   const [searchFilenameOnly, setSearchFilenameOnly] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const debouncedSearch = useCallback(
+    (query: string, searchFilenameOnly: boolean) => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
+      searchTimeoutRef.current = setTimeout(() => {
+        if (query.length >= 2) {
+          // Only search if 2+ characters
+          onSearch(query, !searchFilenameOnly);
+        }
+      }, 300); // 300ms delay
+    },
+    [onSearch]
+  );
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       if (query.trim()) {
-        onSearch(query, searchFilenameOnly);
+        onSearch(query, !searchFilenameOnly);
       }
     },
     [query, searchFilenameOnly, onSearch]
   );
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex flex-col h-full">
@@ -45,7 +70,11 @@ export function SearchPanel({
           <div className="relative flex-1">
             <Input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                const newQuery = e.target.value;
+                setQuery(newQuery);
+                debouncedSearch(newQuery, searchFilenameOnly);
+              }}
               placeholder="Search in files..."
               className="pr-8"
             />
