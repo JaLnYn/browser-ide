@@ -5,6 +5,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RefreshCw } from "lucide-react";
 import { FileTree, FileTreeNode } from "@/components/ui/file-tree";
 import { FileNode } from "../types";
+import { Plus, Trash, Edit } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useEditorState } from "@/hooks/useEditorState";
 
 interface FileExplorerProps {
   loading: boolean;
@@ -15,6 +23,9 @@ interface FileExplorerProps {
   onFolderToggle: (path: string) => void;
   expandedFolders: Set<string>;
   selectedFile: string | null;
+  onCreateFile?: (path: string, isDirectory: boolean) => void;
+  onDeleteFile?: (path: string) => void;
+  onRenameFile?: (oldPath: string, newPath: string) => void;
 }
 
 export function FileExplorer({
@@ -26,6 +37,9 @@ export function FileExplorer({
   onFolderToggle,
   expandedFolders,
   selectedFile,
+  onCreateFile,
+  onDeleteFile,
+  onRenameFile,
 }: FileExplorerProps) {
   const renderFileTree = (nodes: any[]) => {
     return nodes.map((node) => (
@@ -58,6 +72,47 @@ export function FileExplorer({
       <div className="flex-none p-2 border-b bg-background">
         <div className="flex justify-between items-center">
           <h2 className="text-sm font-semibold">Explorer</h2>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onCreateFile?.("", false)}>
+                New File
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onCreateFile?.("", true)}>
+                New Folder
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {selectedFile && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onRenameFile?.(selectedFile, "")}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  if (
+                    window.confirm("Are you sure you want to delete this file?")
+                  ) {
+                    onDeleteFile?.(selectedFile);
+                  }
+                }}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           <div className="flex items-center space-x-2">
             {!connected && (
               <span className="text-xs text-red-500 animate-pulse">●</span>

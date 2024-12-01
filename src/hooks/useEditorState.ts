@@ -41,7 +41,7 @@ export function useEditorState() {
                     isDirty: false,
                     lastSavedContent: content,
                   }
-                : tab
+                : tab,
             );
           }
           return prev;
@@ -63,7 +63,7 @@ export function useEditorState() {
 
       setActiveTabId(tabId);
     },
-    []
+    [],
   );
 
   const pendingChangesRef = useRef<{ [tabId: string]: boolean }>({});
@@ -117,7 +117,7 @@ export function useEditorState() {
               },
               changes,
             },
-          })
+          }),
         );
 
         const data = JSON.parse(response as string);
@@ -134,8 +134,8 @@ export function useEditorState() {
                     ...t,
                     version: data.content.document.version,
                   }
-                : t
-            )
+                : t,
+            ),
           );
         } else if (data.type === "Error") {
           throw new Error(data.content.message);
@@ -159,12 +159,12 @@ export function useEditorState() {
                     latestContentRef.current[tabId] || t.lastSavedContent || "",
                   isDirty: false,
                 }
-              : t
-          )
+              : t,
+          ),
         );
       }
     }, 300),
-    [sendMessage, toast]
+    [sendMessage, toast],
   );
 
   const updateTabContent = useCallback(
@@ -179,13 +179,13 @@ export function useEditorState() {
                 content: newContent,
                 isDirty: newContent !== tab.lastSavedContent,
               }
-            : tab
-        )
+            : tab,
+        ),
       );
 
       sendChanges(tabId, newContent);
     },
-    [sendChanges]
+    [sendChanges],
   );
 
   // Add logging to track state updates
@@ -207,7 +207,7 @@ export function useEditorState() {
                 version: tab.version + 1,
               },
             },
-          })
+          }),
         );
 
         const data = JSON.parse(response as string);
@@ -222,8 +222,8 @@ export function useEditorState() {
                     version: data.content.document.version,
                     lastSavedContent: t.content,
                   }
-                : t
-            )
+                : t,
+            ),
           );
 
           toast({
@@ -242,7 +242,7 @@ export function useEditorState() {
         });
       }
     },
-    [tabs, sendMessage, toast]
+    [tabs, sendMessage, toast],
   );
 
   const closeTab = useCallback(
@@ -274,10 +274,10 @@ export function useEditorState() {
         JSON.stringify({
           type: "CloseFile",
           content: { path: rootPath + tab.path },
-        })
+        }),
       );
     },
-    [activeTabId, tabs, rootPath, sendMessage]
+    [activeTabId, tabs, rootPath, sendMessage],
   );
 
   // Make sure this is properly implemented for save action
@@ -285,7 +285,7 @@ export function useEditorState() {
     console.log("Updating tab dirty state", { tabId, isDirty });
     setTabs((prev) => {
       const newTabs = prev.map((tab) =>
-        tab.id === tabId ? { ...tab, isDirty } : tab
+        tab.id === tabId ? { ...tab, isDirty } : tab,
       );
       console.log("New tabs state after dirty update:", newTabs); // Debug log
       return newTabs;
@@ -302,11 +302,11 @@ export function useEditorState() {
           JSON.stringify({
             type: "OpenFile",
             content: { path: rootPath + path },
-          })
+          }),
         );
       }
     },
-    [tabs, rootPath, sendMessage]
+    [tabs, rootPath, sendMessage],
   );
 
   // Folder management
@@ -322,13 +322,104 @@ export function useEditorState() {
             JSON.stringify({
               type: "GetDirectory",
               content: { path: rootPath + path },
-            })
+            }),
           );
         }
         return next;
       });
     },
-    [rootPath, sendMessage]
+    [rootPath, sendMessage],
+  );
+
+  const createFile = useCallback(
+    async (path: string, isDirectory: boolean) => {
+      try {
+        const name = prompt(
+          `Enter name for new ${isDirectory ? "folder" : "file"}:`,
+        );
+        if (!name) return;
+
+        console.log("Creating file:", {
+          path: rootPath + "/" + name,
+          isDirectory,
+        });
+        await sendMessage(
+          JSON.stringify({
+            type: "CreateFile",
+            content: {
+              path: rootPath + "/" + name,
+              is_directory: isDirectory,
+            },
+          }),
+        );
+
+        // // Request directory content update
+        // sendMessage(
+        //   JSON.stringify({
+        //     type: "GetDirectory",
+        //     content: { path: rootPath || "" },
+        //   }),
+        // );
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Failed to create file",
+          description:
+            error instanceof Error ? error.message : "Unknown error occurred",
+        });
+      }
+    },
+    [sendMessage, rootPath, toast],
+  );
+
+  const deleteFile = useCallback(
+    async (path: string) => {
+      try {
+        await sendMessage(
+          JSON.stringify({
+            type: "DeleteFile",
+            content: {
+              path: path,
+            },
+          }),
+        );
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Failed to delete file",
+          description:
+            error instanceof Error ? error.message : "Unknown error occurred",
+        });
+      }
+    },
+    [sendMessage, toast],
+  );
+
+  const renameFile = useCallback(
+    async (oldPath: string, newPath: string) => {
+      try {
+        const newName = prompt("Enter new name:", oldPath);
+        if (!newName || newName === oldPath) return;
+
+        await sendMessage(
+          JSON.stringify({
+            type: "RenameFile",
+            content: {
+              old_path: oldPath,
+              new_path: newName,
+            },
+          }),
+        );
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Failed to rename file",
+          description:
+            error instanceof Error ? error.message : "Unknown error occurred",
+        });
+      }
+    },
+    [sendMessage, toast],
   );
 
   return {
@@ -349,13 +440,16 @@ export function useEditorState() {
     updateTabContent,
     updateTabDirtyState,
     saveTab,
+    createFile,
+    deleteFile,
+    renameFile,
     refresh: () => {
       setLoading(true);
       sendMessage(
         JSON.stringify({
           type: "RefreshDirectory",
           content: { path: rootPath || "" },
-        })
+        }),
       );
     },
   };

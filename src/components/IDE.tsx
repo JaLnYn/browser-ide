@@ -36,6 +36,9 @@ export default function IDE() {
     updateTabContent,
     updateTabDirtyState,
     saveTab,
+    createFile,
+    deleteFile,
+    renameFile,
     refresh,
   } = useEditorState();
 
@@ -47,7 +50,7 @@ export default function IDE() {
       openFile(path);
       // You might need to add line scrolling functionality to your Editor component
     },
-    [openFile]
+    [openFile],
   );
 
   const { diagnostics } = useLsp();
@@ -76,6 +79,9 @@ export default function IDE() {
                 onFolderToggle={toggleFolder}
                 expandedFolders={expandedFolders}
                 selectedFile={activeTab?.path ?? null}
+                onCreateFile={createFile}
+                onDeleteFile={deleteFile}
+                onRenameFile={renameFile}
               />
             </TabsContent>
             <TabsContent value="search" className="h-[calc(100vh-2.5rem)]">
