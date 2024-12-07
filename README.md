@@ -2,7 +2,7 @@
 
 A lightweight, probably-not-winning-any-design-awards browser IDE built with React, Tailwind, and shadcn/ui.
 
-<img width="1488" alt="image" src="https://github.com/user-attachments/assets/01a95725-4c3b-49a1-93c2-668ba655dc11">
+![Untitled design](https://github.com/user-attachments/assets/b8c64a9d-4581-43eb-b228-2a8a4b341663)
 
 This is a testing ground for the [Rust Code Server](https://github.com/JaLnYn/websocket-ide) 🍌
 
