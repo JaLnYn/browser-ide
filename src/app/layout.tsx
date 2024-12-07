@@ -1,4 +1,5 @@
 // src/app/layout.tsx
+import "./globals.css";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
 
 export default function RootLayout({
